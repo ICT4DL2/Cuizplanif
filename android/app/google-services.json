@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1019287297747",
+    "project_id": "cuizplanif",
+    "storage_bucket": "cuizplanif.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1019287297747:android:5b47ef2b079e1403c57e26",
+        "android_client_info": {
+          "package_name": "com.cuizplanif"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBe8n99cMmDMB4_w1x0q_DGOJycQL4xjbY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
