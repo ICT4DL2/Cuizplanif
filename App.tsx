@@ -1,131 +1,92 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import * as React from 'react';
+import { View, Text, Button } from 'react-native';
 import {
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-
+  NavigationContainer,
+  DrawerActions,
+  ParamListBase,
+  NavigationProp,
+} from '@react-navigation/native';
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+  DrawerContentComponentProps,
+} from '@react-navigation/drawer';
+import { createStackNavigator } from '@react-navigation/stack';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+import DashboardScreen from './src/screens/DashboardScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import OnBoarding_Famille from './src/screens/OnBoarding_Famille';
+import TableNourriture from './src/screens/OnBoarding_Food';
+import HomeScreen from './src/screens/HomeScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import OnBoarding_Food from './src/screens/OnBoarding_Food';
+import OnBoardingFinal from './src/screens/OnBoardingFinal';
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+
+
+const SignupScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text>Signup Screen</Text>
+  </View>
+);
+
+function Notifications() {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Notifications Screen</Text>
     </View>
   );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
+// 🔹 Drawer custom avec typage des props
+function CustomDrawerContent(props: DrawerContentComponentProps) {
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        label="Fermer le menu"
+        onPress={() => props.navigation.dispatch(DrawerActions.closeDrawer())}
       />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+      <DrawerItem
+        label="Basculer le menu"
+        onPress={() => props.navigation.dispatch(DrawerActions.toggleDrawer())}
+      />
+    </DrawerContentScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+const Drawer = createDrawerNavigator();
+const Stack = createStackNavigator();
 
-export default App;
+// Drawer Navigator pour les écrans avec menu latéral
+function MyDrawer() {
+  return (
+    <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      <Drawer.Screen name="DashBoard" component={DashboardScreen} />
+      <Drawer.Screen name="Paramètres" component={SettingsScreen} />
+      <Drawer.Screen name="Notifications" component={Notifications} />
+      <Drawer.Screen name="Famille" component={OnBoarding_Famille} />
+      <Drawer.Screen name="Nourriture" component={TableNourriture} />
+    </Drawer.Navigator>
+  );
+}
+
+// Stack Navigator pour la navigation globale
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={RegisterScreen} />
+        <Stack.Screen name="FamilyConfig" component={OnBoarding_Famille} />
+        <Stack.Screen name="FoodConfig" component={OnBoarding_Food} /> 
+        <Stack.Screen name="ConfigurationFinal" component={OnBoardingFinal} />
+       <Stack.Screen name="Drawer" component={MyDrawer} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
