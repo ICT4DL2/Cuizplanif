@@ -20,34 +20,59 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import lightColors from '../theme/appColors';
 import { RootStackParamList } from '../navigation/types';
+import auth, { getAuth } from '@react-native-firebase/auth';
+import { signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
-// Interface pour typer les props du composant Text
 interface CustomTextProps {
   style?: StyleProp<TextStyle>;
   children?: React.ReactNode;
   [key: string]: any;
 }
 
-// Composant Text personnalisé pour appliquer la police
 const Text: React.FC<CustomTextProps> = ({ style, ...props }) => {
   return <RNText style={[styles.text, style]} {...props} />;
 };
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
-function RegisterScreen() {
+function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigation = useNavigation<LoginScreenNavigationProp>();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     Keyboard.dismiss();
-    if ( !email || !password) {
+
+    if (!email || !password) {
       Alert.alert('Erreur de connexion', 'Veuillez remplir tous les champs.');
       return;
     }
-    Alert.alert('Connexion réussie', 'Vous allez etre redirige.');
-    navigation.navigate('FamilyConfig');
+
+    try {
+      await signInWithEmailAndPassword(getAuth(), email, password);
+      Alert.alert('Connexion réussie', 'Vous allez être redirigé.');
+      navigation.navigate('FamilyConfig');
+    } catch (error: any) {
+      let errorMessage = 'Une erreur est survenue lors de la connexion.';
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Cette adresse email est invalide !';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'Aucun utilisateur trouvé avec cet email.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Mot de passe incorrect.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard.';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      Alert.alert('Erreur de connexion', errorMessage);
+    }
   };
 
   return (
@@ -62,10 +87,10 @@ function RegisterScreen() {
         <Text style={styles.subtitle}>Entrez vos informations de connexion</Text>
 
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 50 }} // Ajout pour le contenu
-          keyboardShouldPersistTaps="handled" // Gère les interactions tactiles
-          style={{ paddingTop: 20 }}>
-
+          contentContainerStyle={{ paddingBottom: 50 }}
+          keyboardShouldPersistTaps="handled"
+          style={{ paddingTop: 20 }}
+        >
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
@@ -90,14 +115,13 @@ function RegisterScreen() {
               <Text style={styles.mainButtonText}>Se connecter</Text>
             </TouchableOpacity>
 
-
             <TouchableOpacity
-              style={{marginTop:20}}
-              onPress={() => navigation.navigate('Signup')} // Remplacez 'SignUp' par le nom de votre écran d'inscription
+              style={{ marginTop: 20 }}
+              onPress={() => navigation.navigate('Signup')}
             >
-              <Text style={{ fontSize: 18, textAlign: "center" }}>
-                Vous n'avez pas de compte ?{'           '}
-                <Text style={{ fontSize: 18, color: "#9DD02C" }}>Créer un compte</Text>
+              <Text style={{ fontSize: 18, textAlign: 'center' }}>
+                Vous n'avez pas de compte ?{' '}
+                <Text style={{ fontSize: 18, color: '#9DD02C' }}>Créer un compte</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -115,17 +139,16 @@ const styles = StyleSheet.create({
   stackNavTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent: 'center', // Centre horizontalement l'icône et le texte
     marginBottom: 10,
   },
   text: {
-    fontFamily: 'CircularStd-Bold', // Police appliquée à tous les Text
+    fontFamily: 'CircularStd-Bold',
     fontSize: 14,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: lightColors.secondaryColor, // Utilise la couleur du thème
+    color: lightColors.secondaryColor,
   },
   subtitle: {
     fontSize: 15,
@@ -133,12 +156,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    width: '100%', // Aligné avec les labels
+    width: '100%',
     height: 50,
     backgroundColor: '#fff',
     paddingHorizontal: 15,
     marginBottom: 20,
-    borderColor: lightColors.mainColor, // Utilise la couleur du thème
+    borderColor: lightColors.mainColor,
     borderWidth: 1,
     borderRadius: 15,
     fontSize: 16,
@@ -173,7 +196,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 13,
     backgroundColor: lightColors.mainColor,
-    width: Dimensions.get('window').width - Dimensions.get('window').width / 10 - 40, // Ajusté pour le padding
+    width: Dimensions.get('window').width - Dimensions.get('window').width / 10 - 40,
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
@@ -196,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default LoginScreen;

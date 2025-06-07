@@ -35,7 +35,7 @@ interface Member {
 
 type FamilyScreenNavigationProp = StackNavigationProp<RootStackParamList, 'FamilyConfig'>;
 
-const FamilyConfig: React.FC = () => {
+const FamilySet: React.FC = () => {
   const [progress, setProgress] = useState<number>(5);
   const progressAnim = useRef(new Animated.Value(5)).current;
   const [members, setMembers] = useState<Member[]>([]);
@@ -229,20 +229,9 @@ const FamilyConfig: React.FC = () => {
       style={styles.gradientContainer}
     >
       <SafeAreaView style={styles.safeContainer}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity onPress={handleBack}>
-            <Feather name="arrow-left" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Let’s start</Text>
-        </View>
+        
 
-        <View style={styles.progressBarContainer}>
-          <Animated.View
-            style={[styles.progressBarFill, { width: widthInterpolated }]}
-          />
-        </View>
-
-        <Text style={styles.secondTitle}>Ajoutez les membres de votre famille</Text>
+        <Text style={styles.title}>Ajoutez les membres de votre famille</Text>
 
         <FlatList
           style={{ marginTop: 20 }}
@@ -288,9 +277,6 @@ const FamilyConfig: React.FC = () => {
           )}
         />
 
-        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-          <Text style={styles.nextButtonText}>Suivant</Text>
-        </TouchableOpacity>
 
         <Modal
           animationType="slide"
@@ -463,4 +449,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FamilyConfig;
+export default FamilySet;

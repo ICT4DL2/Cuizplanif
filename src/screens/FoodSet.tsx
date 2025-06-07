@@ -29,7 +29,7 @@ import auth from '@react-native-firebase/auth';
 
 type FoodScreenNavigationProp = StackNavigationProp<RootStackParamList, 'FoodConfig'>;
 
-const FoodConfig = () => {
+const FoodSet = () => {
   const [plats, setPlats] = useState<Plat[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -40,7 +40,7 @@ const FoodConfig = () => {
   const [selectedPlats, setSelectedPlats] = useState<string[]>([]); // Track selected plat IDs
   const navigation = useNavigation<FoodScreenNavigationProp>();
   const [longPressedPlats, setLongPressedPlats] = useState<Set<string>>(new Set());
-
+  const userId = auth().currentUser?.uid;
 
 
   const [familleId, setFamilleId] = useState<string | null>(null);
@@ -55,7 +55,13 @@ const FoodConfig = () => {
         Alert.alert('Erreur', 'Utilisateur non connecté.');
       }
     });
-
+    const loadData = async () => {
+      const selectedPlatsSnap = await firestore()
+        .collection('families')
+        .doc(userId)
+        .collection('selectedPlats')
+        .get();
+    }
     return unsubscribe;
   }, []);
 
@@ -295,9 +301,7 @@ const FoodConfig = () => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <TouchableOpacity onPress={handleBack}>
-          <Feather name="arrow-left" size={24} color="black" />
-        </TouchableOpacity>
+
         <Text style={styles.title}>Choisissez vos plats favoris</Text>
       </View>
 
@@ -311,9 +315,7 @@ const FoodConfig = () => {
         style={styles.sectionList}
       />
 
-      <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
-        <Text style={styles.nextButtonText}>Suivant</Text>
-      </TouchableOpacity>
+
       <Text style={styles.footerText}>
         Vous pouvez modifier les quantités des ingrédients pour chaque plat.
       </Text>
@@ -521,7 +523,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginBottom:20,
+    marginBottom: 20,
   },
   image: {
     width: 80,
@@ -660,4 +662,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FoodConfig;
+export default FoodSet;

@@ -20,15 +20,16 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import lightColors from '../theme/appColors';
 import { RootStackParamList } from '../navigation/types';
+import auth, { getAuth } from '@react-native-firebase/auth';
+import { createUserWithEmailAndPassword } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
-// Interface pour typer les props du composant Text
 interface CustomTextProps {
   style?: StyleProp<TextStyle>;
   children?: React.ReactNode;
   [key: string]: any;
 }
 
-// Composant Text personnalisé pour appliquer la police
 const Text: React.FC<CustomTextProps> = ({ style, ...props }) => {
   return <RNText style={[styles.text, style]} {...props} />;
 };
@@ -43,14 +44,44 @@ function RegisterScreen() {
   const [sexe, setSexe] = useState('masculin');
   const navigation = useNavigation<RegisterScreenNavigationProp>();
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     Keyboard.dismiss();
     if (!fullName || !email || !password || !sexe || !age) {
       Alert.alert('Erreur d\'inscription', 'Veuillez remplir tous les champs.');
       return;
     }
-    Alert.alert('Inscription réussie', 'Votre compte a été créé ! Vous pouvez maintenant vous connecter.');
-    navigation.navigate('Login');
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(getAuth(), email, password);
+      const userId = userCredential.user.uid;
+      await firestore().collection('users').doc(userId).set({
+        fullName,
+        email,
+        age: parseInt(age),
+        sexe,
+      });
+      Alert.alert('Inscription réussie', 'Votre compte a été créé ! Vous allez être redirigé.');
+      navigation.navigate('FamilyConfig');
+    } catch (error: any) {
+      let errorMessage = 'Une erreur est survenue lors de l\'inscription.';
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Cette adresse email est invalide !';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'Cet email est déjà utilisé !';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Le mot de passe est trop faible. Il doit contenir au moins 6 caractères.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard.';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      Alert.alert('Erreur d\'inscription', errorMessage);
+    }
   };
 
   return (
@@ -65,9 +96,10 @@ function RegisterScreen() {
         <Text style={styles.subtitle}>Veuillez renseigner vos informations</Text>
 
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 50 }} // Ajout pour le contenu
-          keyboardShouldPersistTaps="handled" // Gère les interactions tactiles
-          style={{ paddingTop: 20 }}>
+          contentContainerStyle={{ paddingBottom: 50 }}
+          keyboardShouldPersistTaps="handled"
+          style={{ paddingTop: 20 }}
+        >
           <Text style={styles.label}>Nom complet</Text>
           <TextInput
             style={styles.input}
@@ -98,8 +130,8 @@ function RegisterScreen() {
           <Text style={styles.label}>Sexe</Text>
           <RadioButton.Group onValueChange={setSexe} value={sexe}>
             <View style={styles.radio}>
-              <RadioButton.Item color='#9DD02C' label="Masculin" value="masculin" />
-              <RadioButton.Item color='#9DD02C' label="Féminin" value="feminin" />
+              <RadioButton.Item color="#9DD02C" label="Masculin" value="masculin" />
+              <RadioButton.Item color="#9DD02C" label="Féminin" value="feminin" />
             </View>
           </RadioButton.Group>
 
@@ -112,7 +144,7 @@ function RegisterScreen() {
             onChangeText={setAge}
           />
 
-          <View style={{ alignItems: 'center', paddingBottom:20 }}>
+          <View style={{ alignItems: 'center', paddingBottom: 20 }}>
             <TouchableOpacity onPress={handleRegister} style={styles.mainButton}>
               <Text style={styles.mainButtonText}>Créer mon compte</Text>
             </TouchableOpacity>
@@ -131,17 +163,16 @@ const styles = StyleSheet.create({
   stackNavTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent: 'center', // Centre horizontalement l'icône et le texte
     marginBottom: 10,
   },
   text: {
-    fontFamily: 'CircularStd-Bold', // Police appliquée à tous les Text
+    fontFamily: 'CircularStd-Bold',
     fontSize: 14,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: lightColors.secondaryColor, // Utilise la couleur du thème
+    color: lightColors.secondaryColor,
   },
   subtitle: {
     fontSize: 15,
@@ -149,12 +180,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    width: '100%', // Aligné avec les labels
+    width: '100%',
     height: 50,
     backgroundColor: '#fff',
     paddingHorizontal: 15,
     marginBottom: 20,
-    borderColor: lightColors.mainColor, // Utilise la couleur du thème
+    borderColor: lightColors.mainColor,
     borderWidth: 1,
     borderRadius: 15,
     fontSize: 16,
@@ -189,7 +220,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingVertical: 13,
     backgroundColor: lightColors.mainColor,
-    width: Dimensions.get('window').width - Dimensions.get('window').width / 10 - 40, // Ajusté pour le padding
+    width: Dimensions.get('window').width - Dimensions.get('window').width / 10 - 40,
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
