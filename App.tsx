@@ -30,6 +30,7 @@ import FamilySet from './src/screens/FamilySet';
 import SettingScreen from './src/screens/SettingScreen';
 import ListScreen from './src/screens/ListScreen';
 import ConseilScreen from './src/screens/ConseilScreen';
+import ShoppingListGenerator from './src/screens/ListScreen';
 
 // Placeholder écrans
 const IngredientsScreen = () => (
@@ -133,7 +134,7 @@ function MyDrawer() {
       <Drawer.Screen name="Mes Plats" component={FoodSet} />
       <Drawer.Screen name="Conseils" component={ConseilScreen} />
       <Drawer.Screen name="Programmations" component={ProgrammationScreen} />
-      <Drawer.Screen name="Listes" component={ListScreen} />
+      <Drawer.Screen name="Listes" component={ShoppingListGenerator} />
       <Drawer.Screen name="Paramètres" component={SettingScreen} />
     </Drawer.Navigator>
   );

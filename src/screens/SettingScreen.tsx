@@ -1,7 +1,4 @@
-import { SCREEN_WIDTH } from "@gorhom/bottom-sheet";
-import React from "react";
-import Feather from 'react-native-vector-icons/Feather';
-
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     Text,
@@ -9,67 +6,131 @@ import {
     Image,
     TouchableOpacity,
     StyleSheet,
-} from "react-native";
-import LinearGradient from "react-native-linear-gradient";
+    Modal,
+    ScrollView,
+    Alert,
+} from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
+import auth from '@react-native-firebase/auth';
+import LinearGradient from 'react-native-linear-gradient';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/types';
+import { useNavigation } from '@react-navigation/native';
+
+const { width: SCREEN_WIDTH } = require('@gorhom/bottom-sheet').SCREEN_WIDTH;
 
 
 const SettingScreen = () => {
+    const [showAboutModal, setShowAboutModal] = useState(false);
+    type SettingNavigationProp = StackNavigationProp<RootStackParamList, 'Setting'>;
+    const navigation = useNavigation<SettingNavigationProp>();
+    const handleSignOut = async () => {
+        try {
+            await auth().signOut();
+            Alert.alert('Succès', 'Vous êtes déconnecté.');
+
+            navigation.navigate('Login'); 
+        } catch (error) {
+            console.error('Erreur lors de la déconnexion:', error);
+            Alert.alert('Erreur', 'Impossible de se déconnecter.');
+        }
+    };
+
     return (
         <LinearGradient
-              colors={['#d9e4ef', '#ffffff']}
-              start={{ x: 0.25, y: 1 }}
-              end={{ x: 0.8, y: 0 }}
-             style={styles.container}
+            colors={['#d9e4ef', '#ffffff']}
+            start={{ x: 0.25, y: 1 }}
+            end={{ x: 0.8, y: 0 }}
+            style={styles.container}
         >
-            <View >
-                <Text style={styles.title}> Paramètres de l'application</Text>
+            <View>
+                <Text style={styles.title}>Paramètres de l'application</Text>
                 <View style={styles.content}>
-                    <View >
+                    <View>
                         <Image
                             source={require('../assets/default.jpg')}
-                            style={{ width: 100, height: 100 }}
+                            style={{ width: 100, height: 100, marginBottom: 35 }}
                             resizeMode="contain"
                             borderRadius={50}
                         />
-                        <Text style={styles.subtile}>Yann Martin</Text>
-                    </View>
 
-                    <View style={styles.buttonContainer} >
+                    </View>
+                </View>
+                <View>
+                    <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.buttonLink}>
                             <View style={styles.buttonLinkIconContainer}>
                                 <Feather name="user" color="#8BC34A" size={30} />
                             </View>
-                            
-                            <Text style={styles.btnText}>Mon Profile</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.buttonLink}>
-                             <View style={styles.buttonLinkIconContainer}><Feather name="moon" color="#8BC34A" size={30} /></View>
-                            
-                            <Text style={styles.btnText}>Thème de l'application</Text>
+                            <Text style={styles.btnText}>Mon Profil</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.buttonLink}>
                             <View style={styles.buttonLinkIconContainer}>
-                                <Feather name="infos" color="#8BC34A" size={30} />
+                                <Feather name="moon" color="#8BC34A" size={30} />
                             </View>
-                            
+                            <Text style={styles.btnText}>Thème de l'application</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.buttonLink}
+                            onPress={() => setShowAboutModal(true)}
+                        >
+                            <View style={styles.buttonLinkIconContainer}>
+                                <Feather name="info" color="#8BC34A" size={30} />
+                            </View>
                             <Text style={styles.btnText}>À Propos</Text>
                         </TouchableOpacity>
                     </View>
 
                     <View>
-                        <TouchableOpacity style={styles.bottomButton}>
-                            <Text style={styles.dangerButton}>Réinitialiser l'application</Text>
+                        <TouchableOpacity style={styles.bottomButton} onPress={handleSignOut}>
+                            <Text style={styles.dangerButton}>Se déconnecter</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </View>
 
+            <Modal visible={showAboutModal} animationType="slide">
+                <SafeAreaView style={styles.modalContainer}>
+                    <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>À Propos</Text>
+                        <TouchableOpacity
+                            style={styles.bottomButton}
+                            onPress={() => setShowAboutModal(false)}
+                        >
+                            <Text style={styles.dangerButton}>Fermer</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <ScrollView contentContainerStyle={styles.modalContent}>
+                        <Text style={styles.modalText}>
+                            {'\n'}# À Propos de l'Application{'\n\n'}
+                            **Nom** : Nutrition App{'\n'}
+                            **Version** : 1.0.0{'\n'}
+                            **Développeur** : Yann Martin{'\n'}
+                            **Description** : Une application pour planifier vos repas et obtenir des conseils nutritionnels personnalisés.{'\n\n'}
+                            ## Comment utiliser l'application{'\n\n'}
+                            ### Programmation{'\n'}
+                            1. Accédez à l'écran **Programmation**.{'\n'}
+                            2. Sélectionnez un plat dans la liste des repas disponibles (affichés sous forme de cartes rectangulaires avec images circulaires).{'\n'}
+                            3. Choisissez une date via le sélecteur de date (bouton avec icône de calendrier).{'\n'}
+                            4. Cliquez sur **Enregistrer** pour ajouter la programmation à votre planning.{'\n'}
+                            - Vos programmations sont stockées dans Firebase et peuvent être consultées dans l'écran **Conseil**.{'\n\n'}
+                            ### Conseil{'\n'}
+                            1. Accédez à l'écran **Conseil et Nutrition**.{'\n'}
+                            2. Sélectionnez une période (date de début et de fin) pour analyser vos repas programmés.{'\n'}
+                            3. Cliquez sur **Demander conseil** pour obtenir des recommandations détaillées sur :{'\n'}
+                            - La qualité gastronomique (harmonie des saveurs).{'\n'}
+                            - Les quantités (adéquation des portions).{'\n'}
+                            - L'équilibre nutritionnel (macronutriments et micronutriments).{'\n'}
+                            - Les conseils sont générés par l'API Gemini et affichés en format markdown pour une lecture claire.
+                        </Text>
+                    </ScrollView>
+                </SafeAreaView>
+            </Modal>
         </LinearGradient>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -125,22 +186,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         padding: 15,
         height: 60,
-        gap:20,
+        gap: 20,
         alignItems: 'center',
         textAlign: 'center',
         backgroundColor: 'white',
         borderRadius: 20,
         marginBottom: 30,
-        width: '80%',
+        width: '90%',
         elevation: 18,
     },
-    buttonLinkIconContainer:{
-        width:32,
+    buttonLinkIconContainer: {
+        width: 32,
     },
 
     btnText: {
         fontSize: 18,
-        fontWeight:'500'
+        fontWeight: '500'
     },
 
     dangerButton: {
@@ -152,6 +213,29 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 20,
         marginTop: 10,
+    },
+    modalContainer: {
+        flex: 1,
+        backgroundColor: '#FFF',
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+    },
+    modalTitle: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    modalContent: {
+        padding: 15,
+    },
+    modalText: {
+        fontSize: 16,
+        color: '#333',
+        lineHeight: 24,
     },
 });
 

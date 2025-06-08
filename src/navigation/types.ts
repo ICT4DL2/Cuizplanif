@@ -5,4 +5,5 @@ export type RootStackParamList = {
   Drawer: undefined;
   FamilyConfig: undefined;
   FoodConfig: undefined;
+  Setting:undefined;
 };

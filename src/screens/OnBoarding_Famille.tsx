@@ -220,6 +220,10 @@ const FamilyConfig: React.FC = () => {
     outputRange: ['25%', '100%'],
   });
 
+  function handleSkip(){
+    navigation.navigate('Drawer');
+  }
+
   return (
     <LinearGradient
       colors={['#d9e4ef', '#FFFFFF']}
@@ -291,6 +295,7 @@ const FamilyConfig: React.FC = () => {
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
           <Text style={styles.nextButtonText}>Suivant</Text>
         </TouchableOpacity>
+        <Text style={{fontWeight:'bold', color:'#06ad09', marginTop:15, textAlign:'center'}} onPress={handleSkip}>Passer</Text>
 
         <Modal
           animationType="slide"

@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   dot: {
     width: 10,
     height: 10,
-    borderRadius: 5,
+    borderRadius: 4,
     backgroundColor: '#ccc',
     marginTop: 4,
   },

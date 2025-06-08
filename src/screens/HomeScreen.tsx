@@ -46,7 +46,7 @@ function HomeScreen() {
         </TouchableOpacity>
       </View>
       
-      <Text onPress={gotoDash}>Goto dash</Text>
+      
     </View>
   );
 }
